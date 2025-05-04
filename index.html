@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>IP Hero: Defend Your Creations!</title>
+  <style>
+    body { margin: 0; background: #fff; }
+    canvas { display: block; margin: auto; }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.js"></script>
+</head>
+<body>
+<script>
+  const config = {
+    type: Phaser.AUTO,
+    width: 800,
+    height: 600,
+    scene: [PreloadScene, StartScene, Level1Scene, Level2Scene, Level3Scene, GameOverScene],
+    backgroundColor: '#ffffff'
+  };
+
+  let score = 0;
+
+  class PreloadScene extends Phaser.Scene {
+    constructor() {
+      super('PreloadScene');
+    }
+    preload() {
+      this.load.image('artwork', 'https://cdn-icons-png.flaticon.com/512/3595/3595455.png');
+      this.load.image('invention', 'https://cdn-icons-png.flaticon.com/512/1070/1070790.png');
+      this.load.image('logo', 'https://cdn-icons-png.flaticon.com/512/1164/1164958.png');
+    }
+    create() {
+      this.scene.start('StartScene');
+    }
+  }
+
+  class StartScene extends Phaser.Scene {
+    constructor() { super('StartScene'); }
+    create() {
+      score = 0;
+      this.add.text(400, 150, '🎓 IP Hero: Defend Your Creations!', { fontSize: '28px', color: '#000' }).setOrigin(0.5);
+      const startButton = this.add.text(400, 300, 'Start Game', {
+        fontSize: '24px', backgroundColor: '#4CAF50', color: '#fff', padding: 10
+      }).setOrigin(0.5).setInteractive();
+      startButton.on('pointerdown', () => this.scene.start('Level1Scene'));
+    }
+  }
+
+  class Level1Scene extends Phaser.Scene {
+    constructor() { super('Level1Scene'); }
+    create() {
+      this.add.text(400, 60, 'Level 1: Protect the Artwork', { fontSize: '24px', color: '#000' }).setOrigin(0.5);
+      this.add.text(400, 120, 'You created a digital painting. How will you protect it?', {
+        fontSize: '20px', color: '#000'
+      }).setOrigin(0.5);
+      this.add.image(400, 200, 'artwork').setDisplaySize(100, 100);
+
+      const options = [
+        { text: 'Patent', correct: false },
+        { text: 'Trademark', correct: false },
+        { text: 'Copyright', correct: true }
+      ];
+      this.createOptions(options, 'Level2Scene');
+    }
+
+    createOptions(options, nextScene) {
+      options.forEach((option, index) => {
+        const btn = this.add.text(400, 330 + index * 60, option.text, {
+          fontSize: '22px', backgroundColor: '#2196F3', color: '#fff', padding: 10
+        }).setOrigin(0.5).setInteractive();
+        btn.on('pointerdown', () => {
+          if (option.correct) score += 10;
+          this.scene.start(nextScene);
+        });
+      });
+    }
+  }
+
+  class Level2Scene extends Phaser.Scene {
+    constructor() { super('Level2Scene'); }
+    create() {
+      this.add.text(400, 60, 'Level 2: Protect Your Invention', { fontSize: '24px', color: '#000' }).setOrigin(0.5);
+      this.add.text(400, 120, 'You built a new gadget. How will you protect it?', {
+        fontSize: '20px', color: '#000'
+      }).setOrigin(0.5);
+      this.add.image(400, 200, 'invention').setDisplaySize(100, 100);
+
+      const options = [
+        { text: 'Copyright', correct: false },
+        { text: 'Patent', correct: true },
+        { text: 'Trademark', correct: false }
+      ];
+      this.createOptions(options, 'Level3Scene');
+    }
+
+    createOptions(options, nextScene) {
+      options.forEach((option, index) => {
+        const btn = this.add.text(400, 330 + index * 60, option.text, {
+          fontSize: '22px', backgroundColor: '#2196F3', color: '#fff', padding: 10
+        }).setOrigin(0.5).setInteractive();
+        btn.on('pointerdown', () => {
+          if (option.correct) score += 10;
+          this.scene.start(nextScene);
+        });
+      });
+    }
+  }
+
+  class Level3Scene extends Phaser.Scene {
+    constructor() { super('Level3Scene'); }
+    create() {
+      this.add.text(400, 60, 'Level 3: Protect Your Brand', { fontSize: '24px', color: '#000' }).setOrigin(0.5);
+      this.add.text(400, 120, 'You designed a logo for your company. How will you protect it?', {
+        fontSize: '20px', color: '#000'
+      }).setOrigin(0.5);
+      this.add.image(400, 200, 'logo').setDisplaySize(100, 100);
+
+      const options = [
+        { text: 'Patent', correct: false },
+        { text: 'Trademark', correct: true },
+        { text: 'Copyright', correct: false }
+      ];
+      this.createOptions(options, 'GameOverScene');
+    }
+
+    createOptions(options, nextScene) {
+      options.forEach((option, index) => {
+        const btn = this.add.text(400, 330 + index * 60, option.text, {
+          fontSize: '22px', backgroundColor: '#2196F3', color: '#fff', padding: 10
+        }).setOrigin(0.5).setInteractive();
+        btn.on('pointerdown', () => {
+          if (option.correct) score += 10;
+          this.scene.start(nextScene);
+        });
+      });
+    }
+  }
+
+  class GameOverScene extends Phaser.Scene {
+    constructor() { super('GameOverScene'); }
+    create() {
+      this.add.text(400, 180, '🎉 Game Over!', { fontSize: '32px', color: '#000' }).setOrigin(0.5);
+      this.add.text(400, 240, `Your Score: ${score}`, { fontSize: '26px', color: '#000' }).setOrigin(0.5);
+      this.add.text(400, 300, '✔ Copyright = creative works\n✔ Patent = inventions\n✔ Trademark = brand/logo',
+        { fontSize: '18px', color: '#333', align: 'center', wordWrap: { width: 600 } }).setOrigin(0.5);
+
+      const playAgain = this.add.text(400, 400, 'Play Again', {
+        fontSize: '22px', backgroundColor: '#4CAF50', color: '#fff', padding: 10
+      }).setOrigin(0.5).setInteractive();
+
+      playAgain.on('pointerdown', () => this.scene.start('StartScene'));
+    }
+  }
+
+  const game = new Phaser.Game(config);
+</script>
+</body>
+</html>
