@@ -1,159 +1,261 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>IP Hero: Defend Your Creations!</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IP Awareness Quiz Game</title>
   <style>
-    body { margin: 0; background: #fff; }
-    canvas { display: block; margin: auto; }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      width: 350px;
+      text-align: center;
+    }
+    .question {
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+    .options {
+      list-style-type: none;
+      padding: 0;
+    }
+    .options li {
+      background-color: #2196F3;
+      color: white;
+      padding: 10px;
+      margin: 5px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 18px;
+    }
+    .options li:hover {
+      background-color: #1976D2;
+    }
+    .disabled {
+      background-color: #b0bec5;
+      cursor: not-allowed;
+    }
+    .score {
+      font-size: 20px;
+      margin-top: 20px;
+    }
+    .next-btn {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 18px;
+    }
+    .next-btn:hover {
+      background-color: #45a049;
+    }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.js"></script>
 </head>
 <body>
-<script>
-  const config = {
-    type: Phaser.AUTO,
-    width: 800,
-    height: 600,
-    scene: [PreloadScene, StartScene, Level1Scene, Level2Scene, Level3Scene, GameOverScene],
-    backgroundColor: '#ffffff'
-  };
+  <div class="container">
+    <h1>IP Awareness Quiz Game</h1>
+    <div id="question-container">
+      <div class="question" id="question"></div>
+      <ul class="options" id="options"></ul>
+    </div>
+    <div class="score" id="score"></div>
+    <div id="feedback" style="font-size: 16px; margin-top: 10px;"></div>
+    <button class="next-btn" id="next-btn" onclick="nextQuestion()" style="display: none;">Next Question</button>
+  </div>
 
-  let score = 0;
+  <script>
+    let score = 0;
+    let questionIndex = 0;
 
-  class PreloadScene extends Phaser.Scene {
-    constructor() {
-      super('PreloadScene');
+    const questions = [
+      {
+        question: "What is a patent?",
+        options: ["A. A type of copyright", "B. A legal protection for inventions", "C. A type of trademark", "D. A certificate for artistic works"],
+        correctAnswer: "B",
+        explanation: "A patent grants the inventor exclusive rights to their invention for a limited time."
+      },
+      {
+        question: "What does copyright protect?",
+        options: ["A. A name or logo", "B. A new invention", "C. Creative works like books and music", "D. A business idea"],
+        correctAnswer: "C",
+        explanation: "Copyright protects original works of authorship, like books, music, and films."
+      },
+      {
+        question: "Which of the following is an example of a trademark?",
+        options: ["A. A book title", "B. A unique logo or brand name", "C. An invention for a new gadget", "D. A song lyrics"],
+        correctAnswer: "B",
+        explanation: "A trademark is used to protect a unique logo, name, or symbol that represents a brand."
+      },
+      {
+        question: "Which of the following cannot be patented?",
+        options: ["A. A new electronic device", "B. A plant species", "C. A new song", "D. A new software program"],
+        correctAnswer: "C",
+        explanation: "Copyright, not patents, protects artistic works like songs, music, and films."
+      },
+      {
+        question: "Which type of intellectual property is used to protect original designs or inventions?",
+        options: ["A. Copyright", "B. Patent", "C. Trademark", "D. Trade secret"],
+        correctAnswer: "B",
+        explanation: "Patents protect inventions and designs that are new and useful."
+      },
+      {
+        question: "Which of these is NOT a type of intellectual property?",
+        options: ["A. Copyright", "B. Trademark", "C. Employment contract", "D. Patent"],
+        correctAnswer: "C",
+        explanation: "Employment contracts are legal documents but not intellectual property."
+      },
+      {
+        question: "What is the symbol used to represent a registered trademark?",
+        options: ["A. ©", "B. ®", "C. ™", "D. ℗"],
+        correctAnswer: "B",
+        explanation: "The ® symbol is used for registered trademarks."
+      },
+      {
+        question: "What does ™ represent?",
+        options: ["A. Unregistered trademark", "B. Copyright", "C. Patent pending", "D. Registered trademark"],
+        correctAnswer: "A",
+        explanation: "™ is used to signify that a term or logo is a trademark but not yet registered."
+      },
+      {
+        question: "Why is intellectual property important for students?",
+        options: ["A. To avoid plagiarism", "B. To create value from ideas", "C. To protect their creative work", "D. All of the above"],
+        correctAnswer: "D",
+        explanation: "IP helps students protect their work and understand the value of originality."
+      },
+      {
+        question: "Who grants patents in most countries?",
+        options: ["A. The President", "B. Supreme Court", "C. Government patent office", "D. University"],
+        correctAnswer: "C",
+        explanation: "Government patent offices are responsible for granting patents."
+      },
+      {
+        question: "How long does copyright protection last typically?",
+        options: ["A. 10 years", "B. 50 years after death", "C. Life of the author + 70 years", "D. 100 years"],
+        correctAnswer: "C",
+        explanation: "Copyright usually lasts for the life of the author plus 70 years."
+      },
+      {
+        question: "Can ideas be copyrighted?",
+        options: ["A. Yes", "B. No", "C. Only if published", "D. Only if patented"],
+        correctAnswer: "B",
+        explanation: "Only the expression of ideas, not the ideas themselves, can be copyrighted."
+      },
+      {
+        question: "What is considered fair use?",
+        options: ["A. Using others' work without credit", "B. Using work for criticism or education", "C. Downloading movies", "D. Posting copyrighted content"],
+        correctAnswer: "B",
+        explanation: "Fair use allows limited use of copyrighted material for purposes like teaching or commentary."
+      },
+      {
+        question: "Which law protects IP in India?",
+        options: ["A. Indian Constitution", "B. Patent Act", "C. IP Rights Act", "D. Innovation Act"],
+        correctAnswer: "B",
+        explanation: "The Patent Act and similar legislation protect intellectual property in India."
+      },
+      {
+        question: "If you compose a song, which IP right applies?",
+        options: ["A. Trademark", "B. Patent", "C. Copyright", "D. Trade Secret"],
+        correctAnswer: "C",
+        explanation: "Copyright protects original musical compositions."
+      },
+      {
+        question: "Which is an example of a trade secret?",
+        options: ["A. Logo", "B. Recipe of Coca-Cola", "C. Song lyrics", "D. Movie poster"],
+        correctAnswer: "B",
+        explanation: "Trade secrets are confidential information like formulas and strategies."
+      },
+      {
+        question: "Who owns the copyright of a photo taken by a student?",
+        options: ["A. School", "B. Student", "C. Camera company", "D. Photographer’s friend"],
+        correctAnswer: "B",
+        explanation: "The student who took the photo owns the copyright."
+      },
+      {
+        question: "How can you register a copyright in India?",
+        options: ["A. Submit form to court", "B. Publish in magazine", "C. Register at copyright office", "D. Write your name on work"],
+        correctAnswer: "C",
+        explanation: "You must apply to the Copyright Office to register."
+      },
+      {
+        question: "Which of these is not protected by IP rights?",
+        options: ["A. Business name", "B. Natural discoveries", "C. Software", "D. Paintings"],
+        correctAnswer: "B",
+        explanation: "Natural phenomena cannot be protected under intellectual property laws."
+      },
+      {
+        question: "What does plagiarism mean?",
+        options: ["A. Protecting your ideas", "B. Copying someone’s work", "C. Creating new ideas", "D. Publishing your own book"],
+        correctAnswer: "B",
+        explanation: "Plagiarism means copying someone else's work without giving credit."
+      }
+    ];
+
+    function checkAnswer(answer) {
+      const currentQuestion = questions[questionIndex];
+      const correctAnswer = currentQuestion.correctAnswer;
+      disableOptions();
+
+      if (answer === correctAnswer) {
+        score += 10;
+        alert("Correct! You got 10 points.");
+        document.getElementById("feedback").textContent = "";
+      } else {
+        document.getElementById("feedback").textContent = `Wrong answer! ${currentQuestion.explanation}`;
+      }
+
+      document.getElementById("score").textContent = `Your Score: ${score}`;
+      document.getElementById("next-btn").style.display = 'block';
     }
-    preload() {
-      this.load.image('artwork', 'https://cdn-icons-png.flaticon.com/512/3595/3595455.png');
-      this.load.image('invention', 'https://cdn-icons-png.flaticon.com/512/1070/1070790.png');
-      this.load.image('logo', 'https://cdn-icons-png.flaticon.com/512/1164/1164958.png');
-    }
-    create() {
-      this.scene.start('StartScene');
-    }
-  }
 
-  class StartScene extends Phaser.Scene {
-    constructor() { super('StartScene'); }
-    create() {
-      score = 0;
-      this.add.text(400, 150, '🎓 IP Hero: Defend Your Creations!', { fontSize: '28px', color: '#000' }).setOrigin(0.5);
-      const startButton = this.add.text(400, 300, 'Start Game', {
-        fontSize: '24px', backgroundColor: '#4CAF50', color: '#fff', padding: 10
-      }).setOrigin(0.5).setInteractive();
-      startButton.on('pointerdown', () => this.scene.start('Level1Scene'));
-    }
-  }
-
-  class Level1Scene extends Phaser.Scene {
-    constructor() { super('Level1Scene'); }
-    create() {
-      this.add.text(400, 60, 'Level 1: Protect the Artwork', { fontSize: '24px', color: '#000' }).setOrigin(0.5);
-      this.add.text(400, 120, 'You created a digital painting. How will you protect it?', {
-        fontSize: '20px', color: '#000'
-      }).setOrigin(0.5);
-      this.add.image(400, 200, 'artwork').setDisplaySize(100, 100);
-
-      const options = [
-        { text: 'Patent', correct: false },
-        { text: 'Trademark', correct: false },
-        { text: 'Copyright', correct: true }
-      ];
-      this.createOptions(options, 'Level2Scene');
-    }
-
-    createOptions(options, nextScene) {
-      options.forEach((option, index) => {
-        const btn = this.add.text(400, 330 + index * 60, option.text, {
-          fontSize: '22px', backgroundColor: '#2196F3', color: '#fff', padding: 10
-        }).setOrigin(0.5).setInteractive();
-        btn.on('pointerdown', () => {
-          if (option.correct) score += 10;
-          this.scene.start(nextScene);
-        });
+    function disableOptions() {
+      const options = document.querySelectorAll('.options li');
+      options.forEach(option => {
+        option.classList.add('disabled');
+        option.removeAttribute('onclick');
       });
     }
-  }
 
-  class Level2Scene extends Phaser.Scene {
-    constructor() { super('Level2Scene'); }
-    create() {
-      this.add.text(400, 60, 'Level 2: Protect Your Invention', { fontSize: '24px', color: '#000' }).setOrigin(0.5);
-      this.add.text(400, 120, 'You built a new gadget. How will you protect it?', {
-        fontSize: '20px', color: '#000'
-      }).setOrigin(0.5);
-      this.add.image(400, 200, 'invention').setDisplaySize(100, 100);
-
-      const options = [
-        { text: 'Copyright', correct: false },
-        { text: 'Patent', correct: true },
-        { text: 'Trademark', correct: false }
-      ];
-      this.createOptions(options, 'Level3Scene');
+    function nextQuestion() {
+      questionIndex++;
+      if (questionIndex < questions.length) {
+        loadQuestion();
+      } else {
+        alert("You've completed the quiz!");
+        document.getElementById("question-container").innerHTML = `<h2>Quiz Over! Your Final Score is ${score}</h2>`;
+        document.getElementById("next-btn").style.display = 'none';
+      }
     }
 
-    createOptions(options, nextScene) {
-      options.forEach((option, index) => {
-        const btn = this.add.text(400, 330 + index * 60, option.text, {
-          fontSize: '22px', backgroundColor: '#2196F3', color: '#fff', padding: 10
-        }).setOrigin(0.5).setInteractive();
-        btn.on('pointerdown', () => {
-          if (option.correct) score += 10;
-          this.scene.start(nextScene);
-        });
+    function loadQuestion() {
+      const currentQuestion = questions[questionIndex];
+      document.getElementById("question").textContent = currentQuestion.question;
+      const optionsList = document.getElementById("options");
+      optionsList.innerHTML = "";
+      currentQuestion.options.forEach((option, index) => {
+        const listItem = document.createElement("li");
+        listItem.textContent = option;
+        listItem.setAttribute("onclick", `checkAnswer('${String.fromCharCode(65 + index)}')`);
+        optionsList.appendChild(listItem);
       });
-    }
-  }
-
-  class Level3Scene extends Phaser.Scene {
-    constructor() { super('Level3Scene'); }
-    create() {
-      this.add.text(400, 60, 'Level 3: Protect Your Brand', { fontSize: '24px', color: '#000' }).setOrigin(0.5);
-      this.add.text(400, 120, 'You designed a logo for your company. How will you protect it?', {
-        fontSize: '20px', color: '#000'
-      }).setOrigin(0.5);
-      this.add.image(400, 200, 'logo').setDisplaySize(100, 100);
-
-      const options = [
-        { text: 'Patent', correct: false },
-        { text: 'Trademark', correct: true },
-        { text: 'Copyright', correct: false }
-      ];
-      this.createOptions(options, 'GameOverScene');
+      document.getElementById("next-btn").style.display = 'none';
+      document.getElementById("feedback").textContent = "";
     }
 
-    createOptions(options, nextScene) {
-      options.forEach((option, index) => {
-        const btn = this.add.text(400, 330 + index * 60, option.text, {
-          fontSize: '22px', backgroundColor: '#2196F3', color: '#fff', padding: 10
-        }).setOrigin(0.5).setInteractive();
-        btn.on('pointerdown', () => {
-          if (option.correct) score += 10;
-          this.scene.start(nextScene);
-        });
-      });
-    }
-  }
-
-  class GameOverScene extends Phaser.Scene {
-    constructor() { super('GameOverScene'); }
-    create() {
-      this.add.text(400, 180, '🎉 Game Over!', { fontSize: '32px', color: '#000' }).setOrigin(0.5);
-      this.add.text(400, 240, `Your Score: ${score}`, { fontSize: '26px', color: '#000' }).setOrigin(0.5);
-      this.add.text(400, 300, '✔ Copyright = creative works\n✔ Patent = inventions\n✔ Trademark = brand/logo',
-        { fontSize: '18px', color: '#333', align: 'center', wordWrap: { width: 600 } }).setOrigin(0.5);
-
-      const playAgain = this.add.text(400, 400, 'Play Again', {
-        fontSize: '22px', backgroundColor: '#4CAF50', color: '#fff', padding: 10
-      }).setOrigin(0.5).setInteractive();
-
-      playAgain.on('pointerdown', () => this.scene.start('StartScene'));
-    }
-  }
-
-  const game = new Phaser.Game(config);
-</script>
+    loadQuestion();
+  </script>
 </body>
 </html>
